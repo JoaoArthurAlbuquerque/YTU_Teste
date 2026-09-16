@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>YTU — Guia Cultural de Recife</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+  <div class="phone-wrap">
+    <div id="app">
+
+      <!-- ============ TOAST ============ -->
+      <div class="toast" id="toast"><i class="fa-solid fa-star"></i><span id="toastMsg"></span></div>
+
+      <!-- ============ SCREEN 1: HOME ============ -->
+      <section class="screen active" id="screen-home">
+        <div class="hero-header">
+          <button class="fab-dark" onclick="toggleDark()"><i class="fa-solid fa-moon"></i></button>
+          <div class="logo-ytu"><img src="./img/logo.png" alt="YTU"></div>
+          <div class="search-pill"><i class="fa-solid fa-magnifying-glass"></i>
+            <input placeholder="Buscar por rotas, eventos, restaurantes...">
+          </div>
+          <p style="margin:14px 0 6px; font-weight:700; opacity:.9;">Daqui para onde?</p>
+          <div class="chip-row">
+            <div class="chip active">Cultura</div>
+            <div class="chip">Música</div>
+            <div class="chip">História</div>
+            <div class="chip">Culinária</div>
+          </div>
+        </div>
+        <div class="content" style="margin-top:-40px;">
+          <div class="card-route-hero" onclick="openRouteDetail()">
+            <i class="fa-solid fa-sun sun"></i>
+            <div class="tag">ROTA DA SEMANA</div>
+            <h3>Recife a pé e sem pressa</h3>
+            <div class="meta">4 Paradas · 3h · Grátis</div>
+          </div>
+
+          <div class="section-title">Lugares que combinam com você <a onclick="goto('screen-routes')">Ver todos →</a></div>
+          <div class="card">
+            <div class="place-row" onclick="openDetail('pacofrevo')">
+              <img src="https://images.unsplash.com/photo-1596386461350-326ccb383e9f?w=200&h=200&fit=crop">
+              <div class="info">
+                <h4>Passo do Frevo</h4>
+                <p>850 m · Grátis às terças</p>
+              </div>
+              <i class="fa-solid fa-chevron-right chev"></i>
+            </div>
+            <div class="place-row" onclick="openDetail('cais')">
+              <img src="https://images.unsplash.com/photo-1555529771-7888783a18d3?w=200&h=200&fit=crop">
+              <div class="info">
+                <h4>Caís do Sertão</h4>
+                <p>850 m · Grátis às terças</p>
+              </div>
+              <i class="fa-solid fa-chevron-right chev"></i>
+            </div>
+            <div class="place-row" onclick="openDetail('mercado')">
+              <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=200&h=200&fit=crop">
+              <div class="info">
+                <h4>Mercado da Boa Vista</h4>
+                <p>1,8 km · Comércio Popular e Público</p>
+              </div>
+              <i class="fa-solid fa-chevron-right chev"></i>
+            </div>
+          </div>
+
+          <div class="section-title">Explorar por categorias de Rotas <a>Ver todos →</a></div>
+          <div class="cat-pill-row">
+            <div class="cat-pill" style="background:var(--blue);">Econômica</div>
+            <div class="cat-pill" style="background:var(--yellow); color:#5c4200;">Performática</div>
+            <div class="cat-pill" style="background:var(--red);">De casal</div>
+          </div>
+
+          <div class="section-title">Top 3 Roteiros Arretados!</div>
+          <div class="route-card-mini" style="background:var(--blue);" onclick="openRouteDetail()">
+            <div class="badge">#1</div>
+            <h3><i class="fa-solid fa-sun" style="color:var(--yellow)"></i> Recife a pé e sem pressa</h3>
+            <div class="meta-row"><span><i class="fa-solid fa-shoe-prints"></i>4 paradas</span><span><i class="fa-solid fa-clock"></i>3h</span><span>Grátis</span></div>
+          </div>
+          <div class="route-card-mini" style="background:var(--orange);">
+            <div class="badge">#2</div>
+            <h3>Sabores do mercado</h3>
+            <div class="meta-row"><span>3 paradas</span><span>2h</span></div>
+          </div>
+          <div class="route-card-mini" style="background:var(--red);">
+            <div class="badge">#3</div>
+            <h3>Recife Antigo ao pôr do sol</h3>
+            <div class="meta-row"><span>4 paradas</span><span>3h</span><span>R$30,00</span></div>
+          </div>
+        </div>
+        <div class="pattern-bg"></div>
+      </section>
+
+      <!-- ============ SCREEN 2: MAPA ============ -->
+      <section class="screen" id="screen-map">
+        <div class="map-topbar">
+          <div class="loc-pill"><i class="fa-solid fa-location-dot"></i> Recife, PE</div>
+          <div class="map-search"><i class="fa-solid fa-magnifying-glass"></i><input id="mapSearch" placeholder="O que você quer descobrir?" oninput="filterMap(this.value)"></div>
+        </div>
+        <div id="mapView"></div>
+        <button class="locate-btn"><i class="fa-solid fa-location-crosshairs"></i></button>
+        <div class="map-sheet">
+          <p style="font-weight:800; color:var(--red); font-size:11px; letter-spacing:1px;">PERTO DE VOCÊ</p>
+          <div class="section-title" style="margin-top:0;">Recife acontecendo agora <a>Ver tudo</a></div>
+          <div class="place-row" style="background:#F5F3EC; border-radius:16px;" onclick="openDetail('pacofrevo')">
+            <img src="https://images.unsplash.com/photo-1596386461350-326ccb383e9f?w=200&h=200&fit=crop">
+            <div class="info">
+              <p style="color:var(--red); font-weight:700;">850 M · CULTURA</p>
+              <h4>Paço do Frevo</h4>
+              <p style="color:#3aa856;">Aberto até 17h</p>
+            </div>
+            <i class="fa-solid fa-chevron-right chev"></i>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 3: ROTAS ============ -->
+      <section class="screen" id="screen-routes">
+        <div class="hero-header orange">
+          <div class="logo-ytu"><img src="./img/logo.png" alt="YTU"></div>
+          <h2 style="margin:14px 0 12px;">Rotas para viver o Recife</h2>
+          <div class="filter-row">
+            <div class="filter-chip active">Recomendados</div>
+            <div class="filter-chip">Econômicas</div>
+            <div class="filter-chip">Performáticas</div>
+            <div class="filter-chip">Em grupo</div>
+          </div>
+        </div>
+        <div class="content" style="margin-top:-30px;">
+          <div class="card" style="cursor:pointer;" onclick="openRouteDetail()">
+            <div style="display:flex; align-items:center; gap:0;">
+              <img src="https://images.unsplash.com/photo-1596386461350-326ccb383e9f?w=180&h=140&fit=crop" style="width:130px; height:120px; object-fit:cover;">
+              <div style="padding:12px; flex:1;">
+                <span class="badge yellow">Econômica</span>
+                <h4 style="margin:8px 0 4px;">Paço do Frevo</h4>
+                <p style="font-size:12px; color:var(--text-2); margin:0;"><i class="fa-regular fa-clock"></i> 3h · 4 Paradas</p>
+                <p style="font-size:12px; color:var(--text-2); margin:2px 0 0;"><i class="fa-solid fa-wallet"></i> Até R$15,00</p>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;">
+            <div style="display:flex; align-items:center;">
+              <img src="https://images.unsplash.com/photo-1555529771-7888783a18d3?w=180&h=140&fit=crop" style="width:130px; height:120px; object-fit:cover;">
+              <div style="padding:12px; flex:1;">
+                <span class="badge pink">Performática</span>
+                <h4 style="margin:8px 0 4px;">Cais do Sertão</h4>
+                <p style="font-size:12px; color:var(--text-2); margin:0;">3h30 · 6 Paradas</p>
+                <p style="font-size:12px; color:var(--text-2); margin:2px 0 0;">Até R$80,00</p>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;">
+            <div style="display:flex; align-items:center;">
+              <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=180&h=140&fit=crop" style="width:130px; height:120px; object-fit:cover;">
+              <div style="padding:12px; flex:1;">
+                <span class="badge" style="background:#DDE7FF; color:var(--blue);">Em grupo</span>
+                <h4 style="margin:8px 0 4px;">Mercado da Boa Vista</h4>
+                <p style="font-size:12px; color:var(--text-2); margin:0;">2h · 3 Paradas</p>
+                <p style="font-size:12px; color:var(--text-2); margin:2px 0 0;">Até R$50,00</p>
+              </div>
+            </div>
+          </div>
+          <button class="btn-secondary" style="border-color:var(--orange); color:var(--orange);"><i class="fa-solid fa-plus"></i> Monte sua própria rota</button>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 4: FAVORITOS / CUPONS / QUIZZES ============ -->
+      <section class="screen" id="screen-star">
+        <div class="hero-header yellow">
+          <div class="logo-ytu"><img src="./img/logo.png" alt="YTU"></div>
+          <h2 style="margin:14px 0 4px;">Seus favoritos e conquistas</h2>
+        </div>
+        <div class="content" style="margin-top:-30px;">
+          <div class="section-title" style="margin-top:0;">Ative cupons e economize!</div>
+          <div class="card" style="background:linear-gradient(135deg,var(--blue),var(--blue-dark)); color:#fff; padding:18px; display:flex; align-items:center; gap:14px;">
+            <i class="fa-solid fa-tag" style="font-size:26px; color:var(--yellow);"></i>
+            <div>
+              <h4 style="margin:0;">Ative cupons e economize mais!</h4>
+              <p style="margin:4px 0 0; font-size:12px; opacity:.9;">Ative seus cupons e use na hora de pagar.</p>
+            </div>
+          </div>
+          <div class="card" style="padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:12px; align-items:center;"><i class="fa-solid fa-camera" style="background:var(--blue); color:#fff; padding:12px; border-radius:12px;"></i>
+              <div>
+                <h4 style="margin:0; font-size:14px;">10% OFF</h4>
+                <p style="margin:0; font-size:12px; color:var(--text-2);">Em compras acima de R$100</p>
+              </div>
+            </div>
+            <span style="font-size:11px; color:var(--text-2);">até 25/12</span>
+          </div>
+          <div class="card" style="padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; gap:12px; align-items:center;"><i class="fa-solid fa-wine-bottle" style="background:var(--blue); color:#fff; padding:12px; border-radius:12px;"></i>
+              <div>
+                <h4 style="margin:0; font-size:14px;">15% OFF</h4>
+                <p style="margin:0; font-size:12px; color:var(--text-2);">Em compras acima de R$130</p>
+              </div>
+            </div>
+            <span style="font-size:11px; color:var(--text-2);">até 25/12</span>
+          </div>
+
+          <div class="section-title">Responda e ganhe pontos</div>
+          <div class="card" style="padding:18px; cursor:pointer;" onclick="openQuiz()">
+            <div style="display:flex; align-items:center; gap:14px;">
+              <i class="fa-solid fa-brain" style="font-size:24px; color:var(--orange);"></i>
+              <div>
+                <h4 style="margin:0;">Quiz: Paço do Frevo</h4>
+                <p style="margin:4px 0 0; font-size:12px; color:var(--text-2);">Teste seu conhecimento e ganhe +10 pts</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ SCREEN 5: PERFIL ============ -->
+      <section class="screen" id="screen-profile">
+        <button class="toggle-view-btn" onclick="toggleLogin()"><i class="fa-solid fa-rotate"></i> Alternar visão</button>
+        <div class="profile-header" id="profileHeaderLogged">
+          <i class="fa-solid fa-gear settings-btn"></i>
+          <img class="avatar" src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=200&h=200&fit=crop">
+        </div>
+        <div class="profile-header" id="profileHeaderGuest" style="display:none; padding-bottom:30px;">
+          <i class="fa-solid fa-gear settings-btn"></i>
+          <div style="display:flex; align-items:center; gap:12px; margin-top:26px;">
+            <div class="avatar-placeholder" style="width:60px; height:60px; font-size:22px;"><i class="fa-regular fa-user"></i></div>
+            <div>
+              <h3 style="margin:0;">Usuário</h3>
+              <p style="margin:0; opacity:.85; font-size:13px;">faça login</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pts-card">
+          <div class="pts-top">
+            <div>
+              <p style="margin:0; font-size:12px; color:var(--text-2);">Seus pontos</p>
+              <div class="pts-num" id="ptsNum">1.250 <small style="font-size:14px;">pts</small></div>
+            </div>
+            <button class="btn-cupom">Ver cupons</button>
+          </div>
+          <p id="userName" style="text-align:center; font-weight:700; margin:10px 0 0;">Carrasco <span style="color:var(--text-2); font-weight:400;">@carrasco.cultura</span></p>
+          <div class="metrics-row" id="metricsRow">
+            <div class="metric">
+              <div class="num">24</div>
+              <div class="lbl">Trilhas feitas</div>
+            </div>
+            <div class="metric">
+              <div class="num">37</div>
+              <div class="lbl">Lugares visitados</div>
+            </div>
+            <div class="metric">
+              <div class="num">18</div>
+              <div class="lbl">Quizzes concluídos</div>
+            </div>
+            <div class="metric">
+              <div class="num">12</div>
+              <div class="lbl">Posts compartilhados</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin:24px 20px 10px;">Conquistas</div>
+        <div class="badges-row" id="badgesRow">
+          <div class="badge-item">
+            <div class="badge-circle" style="background:var(--yellow);"><i class="fa-solid fa-shoe-prints"></i></div>
+            <div class="lbl">Explorador iniciante</div>
+          </div>
+          <div class="badge-item">
+            <div class="badge-circle" style="background:var(--orange);"><i class="fa-solid fa-person-walking"></i></div>
+            <div class="lbl">Caminhante Cultural</div>
+          </div>
+          <div class="badge-item">
+            <div class="badge-circle" style="background:var(--red);"><i class="fa-solid fa-landmark"></i></div>
+            <div class="lbl">Fã de Museus</div>
+          </div>
+          <div class="badge-item">
+            <div class="badge-circle" style="background:var(--blue);"><i class="fa-solid fa-seedling"></i></div>
+            <div class="lbl">Raízes Locais</div>
+          </div>
+        </div>
+        <p class="badge-locked" id="badgeLockedTxt" style="display:none;">Desbloqueie com o login e obtenha conquistas</p>
+
+        <div class="section-title" style="margin:22px 20px 6px;">Atividade Recente</div>
+        <div id="activityList">
+          <div class="activity-row"><img src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=100&h=100&fit=crop">
+            <div class="txt">
+              <h5>Você visitou Caixa Cultural Recife</h5><span>Ontem</span>
+            </div>
+            <div class="pts">+20 pts</div>
+          </div>
+          <div class="activity-row">
+            <div class="icon-circle"><i class="fa-solid fa-check"></i></div>
+            <div class="txt">
+              <h5>Quiz concluído: Paço do Frevo</h5><span>Ontem</span>
+            </div>
+            <div class="pts">+10 pts</div>
+          </div>
+        </div>
+
+        <div class="login-box" id="loginBox" style="display:none;">
+          <div class="social-row">
+            <button class="social-btn"><i class="fa-brands fa-google"></i> Google</button>
+            <button class="social-btn"><i class="fa-brands fa-apple"></i> Apple</button>
+          </div>
+          <button class="btn-primary" style="background:var(--red); margin-top:14px;" onclick="toggleLogin()">Cadastrar</button>
+        </div>
+      </section>
+
+      <!-- ============ NAV ============ -->
+      <div class="bottom-nav">
+        <button class="nav-item active" data-screen="screen-home" onclick="goto('screen-home', this)"><i class="fa-solid fa-house"></i>Início</button>
+        <button class="nav-item" data-screen="screen-map" onclick="goto('screen-map', this)"><i class="fa-solid fa-map"></i>Explorar</button>
+        <button class="nav-item" data-screen="screen-routes" onclick="goto('screen-routes', this)"><i class="fa-solid fa-route"></i>Rotas</button>
+        <button class="nav-item" data-screen="screen-star" onclick="goto('screen-star', this)"><i class="fa-solid fa-star"></i>Conquistas</button>
+        <button class="nav-item" data-screen="screen-profile" onclick="goto('screen-profile', this)"><i class="fa-solid fa-user"></i>Perfil</button>
+      </div>
+
+      <!-- ============ DETAIL SCREEN (overlay) ============ -->
+      <div class="overlay" id="detailOverlay">
+        <div class="sheet" style="height:92%; padding:0; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="overflow-y:auto; flex:1;">
+            <div class="detail-header">
+              <button class="back-btn" onclick="closeDetail()"><i class="fa-solid fa-chevron-left"></i></button>
+              <img id="detailImg" src="https://images.unsplash.com/photo-1596386461350-326ccb383e9f?w=800&h=500&fit=crop">
+            </div>
+            <div class="detail-card">
+              <div class="badge-row"><span class="badge pink">CULTURA • MÚSICA</span><span class="badge yellow">Econômica</span></div>
+              <h2 id="detailName" style="margin:4px 0;">Paço do Frevo</h2>
+              <div class="rating-row"><span class="stars">★ 4.9</span> (328 avaliações) · 850 m</div>
+              <p style="color:var(--text-2); font-size:14px; line-height:1.5;">Um espaço vivo para conhecer, sentir e celebrar o frevo, Patrimônio Cultural Imaterial da Humanidade.</p>
+              <div class="info-box-row">
+                <div class="info-box">
+                  <div class="lbl"><i class="fa-regular fa-clock"></i> Horário</div>
+                  <div class="val">10h às 17h</div>
+                  <div class="sub">Aberto agora</div>
+                </div>
+                <div class="info-box">
+                  <div class="lbl"><i class="fa-solid fa-wallet"></i> Entrada</div>
+                  <div class="val">R$ 10</div>
+                  <div class="sub" style="color:var(--text-2);">Grátis às terças</div>
+                </div>
+              </div>
+              <div class="access-box">
+                <div class="lbl">ACESSIBILIDADE</div>
+                <h4>Espaço acessível</h4>
+                <div class="access-tags"><span>Elevador</span><span>Banheiro adaptado</span><span>Libras</span></div>
+              </div>
+              <p style="font-size:11px; font-weight:700; color:var(--red); letter-spacing:1px; margin-top:20px;">COMO CHEGAR</p>
+              <p style="font-weight:700; margin:4px 0 0;">Praça do Arsenal</p>
+              <p style="font-size:13px; color:var(--text-2); margin:2px 0 12px;"><i class="fa-solid fa-location-dot"></i> Bairro do Recife, Recife/PE</p>
+            </div>
+          </div>
+          <div style="padding:16px 20px 24px; background:#fff; border-top:1px solid #f2f2f2;">
+            <div style="display:flex; gap:10px; margin-bottom:10px;">
+              <button class="btn-primary" style="background:#3aa856; flex:1;" onclick="checkIn()"><i class="fa-solid fa-location-dot"></i> Check-in (+20 pts)</button>
+              <button class="btn-primary orange" style="flex:1;" onclick="openQuiz()"><i class="fa-solid fa-brain"></i> Quiz (+10)</button>
+            </div>
+            <div class="action-row">
+              <div class="icon-fav"><i class="fa-regular fa-star"></i></div>
+              <button class="btn-primary" style="flex:1;">Criar rota até aqui</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ ROUTE DETAIL SCREEN (overlay) ============ -->
+      <div class="overlay" id="routeOverlay">
+        <div class="sheet" style="height:92%; padding:0; overflow:hidden; display:flex; flex-direction:column;">
+          <div style="overflow-y:auto; flex:1;">
+            <div class="hero-header" style="padding:24px 22px 40px;">
+              <button class="back-btn" style="background:rgba(255,255,255,.25); color:#fff;" onclick="closeRoute()"><i class="fa-solid fa-chevron-left"></i></button>
+              <p style="margin:36px 0 4px; font-size:11px; font-weight:700; letter-spacing:1px; color:var(--yellow);">ROTA DA SEMANA</p>
+              <h2 style="margin:0;">Recife a pé e sem pressa <i class="fa-solid fa-sun" style="color:var(--yellow);"></i></h2>
+            </div>
+            <div class="content" style="margin-top:-20px;">
+              <div class="route-meta-row">
+                <div class="route-meta-box"><i class="fa-regular fa-clock"></i>
+                  <div class="lbl">DURAÇÃO</div>
+                  <div class="val">3 horas</div>
+                </div>
+                <div class="route-meta-box"><i class="fa-solid fa-map"></i>
+                  <div class="lbl">DISTÂNCIA</div>
+                  <div class="val">2,8 Km</div>
+                </div>
+                <div class="route-meta-box"><i class="fa-solid fa-wallet"></i>
+                  <div class="lbl">CUSTO</div>
+                  <div class="val">Grátis</div>
+                </div>
+              </div>
+              <p style="color:var(--text-2); font-size:13px;">Uma manhã para sentir o centro histórico com calma, música e histórias pelo caminho.</p>
+              <div class="section-title" style="margin-top:20px;">Seu caminho — 4 paradas <a>Ver no mapa</a></div>
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--blue);"><i class="fa-solid fa-flag"></i></div>
+                  <div>
+                    <div class="time">09:00 · Parada 1</div>
+                    <h4>Marco Zero</h4>
+                    <p>Comece sentindo o coração da cidade</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--red);"><i class="fa-solid fa-masks-theater"></i></div>
+                  <div>
+                    <div class="time">09:30 · Parada 2</div>
+                    <h4>Paço do Frevo</h4>
+                    <p>Mergulhe no ritmo pernambucano</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--orange);"><i class="fa-solid fa-book"></i></div>
+                  <div>
+                    <div class="time">11:00 · Parada 3</div>
+                    <h4>Cais do Sertão</h4>
+                    <p>Conheça histórias do nosso sertão</p>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--yellow);"><i class="fa-solid fa-sun"></i></div>
+                  <div>
+                    <div class="time">12:00 · Parada 4</div>
+                    <h4>Rua do Bom Jesus</h4>
+                    <p>A terceira rua mais bonita do mundo</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:16px 20px 24px; background:#fff; border-top:1px solid #f2f2f2;">
+            <div class="action-row">
+              <div class="icon-fav"><i class="fa-regular fa-star"></i></div>
+              <button class="btn-primary" onclick="startRoute()">Criar rota até aqui</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ QUIZ MODAL ============ -->
+      <div class="modal-overlay" id="quizModal">
+        <div class="quiz-box">
+          <i class="fa-solid fa-circle-question big"></i>
+          <h3 style="margin:0 0 6px;">Quiz Cultural</h3>
+          <p style="color:var(--text-2); font-size:14px; margin-bottom:6px;" id="quizQuestion">Qual dança/ritmo, patrimônio cultural imaterial da humanidade, é homenageado no Paço do Frevo?</p>
+          <div id="quizOptions">
+            <button class="quiz-opt" onclick="answerQuiz(this,false)">Samba</button>
+            <button class="quiz-opt" onclick="answerQuiz(this,true)">Frevo</button>
+            <button class="quiz-opt" onclick="answerQuiz(this,false)">Maracatu</button>
+            <button class="quiz-opt" onclick="answerQuiz(this,false)">Forró</button>
+          </div>
+          <button class="btn-secondary" style="margin-top:18px; border-color:#ddd; color:var(--text-2);" onclick="closeQuiz()">Fechar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+
+</html>
